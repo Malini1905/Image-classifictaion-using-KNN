@@ -1,0 +1,79 @@
+
+
+
+
+import scipy.io as sio
+
+GOOGLE_COLAB = True
+path = ""
+if GOOGLE_COLAB:
+    from google.colab import drive, files
+    drive.mount('/content/drive/')
+    path = "/content/drive/My Drive/KNN/"
+
+dataset = path + "data.mat" 
+
+mat_contents = sio.loadmat(dataset)
+images_original = mat_contents['images']
+label = mat_contents['C']
+print("images_original shape: ",images_original.shape)
+
+import numpy as np
+
+images = np.transpose(images_original)
+print("images.shape",images.shape)
+imgs = np.reshape(images, [ 32, 32, 3, -1], order="F")
+print("imgs.shape ",imgs.shape)
+
+from matplotlib import pyplot as plt
+
+plt.imshow(imgs[:,:,:,40])
+print("imgs[:,:,:,40].shape",imgs[:,:,:,40].shape)
+
+from scipy import misc
+import cv2
+from math import sqrt
+from numpy import ndarray
+
+test_image = path + "testimage.jpeg"
+
+img0 = cv2.imread(test_image)
+plt.figure()
+plt.imshow(img0)
+
+img1 = cv2.cvtColor(img0, cv2.COLOR_BGR2RGB)
+plt.figure()
+plt.imshow(img1)
+
+img2 = cv2.resize(img1, (32,32))
+plt.figure()
+plt.imshow(img2)
+
+img3 = np.reshape(img2, [3072,1], order="F")
+print("img3.shape",img3.shape)
+
+def euclidean_distance(row1, row2):
+  distance = 0.0
+  for i in range(len(row1)):
+    distance = distance + (row1[i] - row2[i])**2
+  return sqrt(distance)
+
+# print(len(img3))
+
+# for i in range(5):
+#   print(i)
+
+dist = np.zeros(50)
+
+for i in range(50):
+  selectedimg = images[0:3072,i]
+  dist[i] = euclidean_distance(img3,selectedimg)
+ 
+print("Euclidean Distances: ", dist)
+print("Minimum Distance: ", min(dist))
+mindist = np.argmin(dist)
+print("Index of Minimum Distance: ", mindist)
+
+plt.imshow(imgs[:,:,:,mindist])
+
+np.argsort(dist)
